@@ -11,6 +11,7 @@
         <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900" rel="stylesheet">
         <link href="https://cdn.jsdelivr.net/npm/@mdi/font@6.x/css/materialdesignicons.min.css" rel="stylesheet">
         <link href="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.min.css" rel="stylesheet">
+        <meta name="csrf-token" content="<?php echo csrf_token(); ?>">
 
         <!-- Styles -->
         <style>
@@ -70,7 +71,19 @@
         <div class="flex-center position-ref full-height" id = "MainVue">
             <v-app>
                 <v-main>
-                    <v-container>Hello world</v-container>
+                    <v-text-field
+                        v-model="FIO"
+                        v-if="vis">
+
+                    </v-text-field>
+                    <v-btn
+                        @click="setVisible">
+                        Visible
+                    </v-btn>
+                    <v-btn
+                        @click="sendName">
+                        Send
+                    </v-btn>
                 </v-main>
             </v-app>
 
@@ -78,10 +91,40 @@
 
         <script src="https://cdn.jsdelivr.net/npm/vue@2.x/dist/vue.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.js"></script>
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
         <script>
-            new Vue({
+            var r = new Vue({
                 el: '#MainVue',
                 vuetify: new Vuetify(),
+                data(){
+                return({
+                    FIO:'Ivanov',
+                    vis: true,
+                })},
+                methods:{
+                    setVisible(){
+                        //this.vis = (this.vis == true) ? false : true
+                        this.vis = !this.vis
+                    },
+                    sendName(){
+                        let data = new FormData()
+                        data.append('FIO',this.FIO)
+                        //this.vis = (this.vis == true) ? false : true
+                        fetch('/sendName',{
+                            method:'POST',
+                            headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+                            body:data
+                        })
+                            .then((response)=>{
+                                return response.json()
+                            })
+                            .then((data)=>{
+                                console.log(data)
+                            })
+                    }
+
+                }
+
             })
         </script>
     </body>
